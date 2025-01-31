@@ -1,0 +1,22 @@
+# Virtual environment (avoid uploading venv)
+venv/
+*.pyc
+*.pyo
+__pycache__/
+
+# Environment variables (contains secrets)
+.env
+
+# Dependencies (you only need requirements.txt)
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore sensitive files (API keys, uploads, etc.)
+Keys/
+uploads/
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.swp
+.DS_Store
