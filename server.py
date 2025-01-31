@@ -92,7 +92,7 @@ class VerificationCodeSchema(BaseModel):
 class ProductSchema(BaseModel):
     seller: str
     name: str
-    images: List[UploadFile] = File(...),
+    images: List[UploadFile] = File(...)
     category: str
     tags: List[str]
     details: str
@@ -325,7 +325,7 @@ async def signin(user: SignInSchema, response: Response):
     )
     access_token = generate_Access_token(
         found_user["email"], found_user["verified"])
-    return {"message": f"Logged in as {found_user["name"]}", "access_token": access_token, "user": found_user}
+    return {"message": f"Logged in as {found_user['name']}", "access_token": access_token, "user": found_user}
 
 
 @app.get("/validate-refresh-token")
@@ -336,9 +336,9 @@ def verify_refresh_token(request: Request):
     try:
         if (jwt.decode(refresh_token, os.getenv("JWT_SECRET_REFRESH"), algorithms="HS256")):
             return {"status_code": 200, "status": "success"}
-        return {"status_code": 400, "status": "Faliure"}
+        return {"status_code": 400, "status": "Failure"}
     except:
-        return {"status_code": 400, "status": "Faliure"}
+        return {"status_code": 400, "status": "Failure"}
 
 
 @app.post("/validate-access-token")
@@ -361,7 +361,7 @@ def generate_access_token(request: Request):
         new_token = generate_Access_token(email, verified)
         return {"status_code": 200, "status": "success", "token": new_token}
     except:
-        return {"status_code": 401, "status": "faliure", "token": None}
+        return {"status_code": 401, "status": "failure", "token": None}
 
 
 @app.post("/fetch-user")
@@ -384,7 +384,7 @@ async def fetch_user(request: Request):
         return {"status": "sucess", "status_code": 200, "user": user}
     except:
         print("failed to retrieve user")
-        return {"status": "faliure", "status_code": 404, "user": None}
+        return {"status": "failure", "status_code": 404, "user": None}
 
 
 @app.get("/signout")
@@ -407,7 +407,7 @@ async def editDetails(editRequest: EditDetailsSchema):
         await users_collection.update_one(query_filter, update_operation)
         return {'status': 'success'}
     except:
-        return {'status': 'faliure'}
+        return {'status': 'failure'}
 
 
 @app.post("/get-verification-code")
@@ -506,7 +506,7 @@ async def upload_product(
         await product_collection.insert_one(product_data)
         return {"status": "success", "message": "Product uploaded successfully."}
     except Exception as e:
-        return {"status": "faliure", "message": f"Error: {e}"}
+        return {"status": "failure", "message": f"Error: {e}"}
 
 
 @app.get("/query-products-by-category")
@@ -636,7 +636,7 @@ async def add_cart_item(req: MutateCartSchema):
 
     except Exception as e:
         print("Error adding cart item: ", e)
-        return {"status": "faliure"}
+        return {"status": "failure"}
 
 
 @app.post("/delete-cart-item")
@@ -655,7 +655,7 @@ async def delete_cart_item(req: MutateCartSchema):
 
     except Exception as e:
         print("Error deleting cart item: ", e)
-        return {"status": "faliure"}
+        return {"status": "failure"}
 
 
 @app.get("/products-query")
@@ -842,7 +842,7 @@ async def fetch_product_history(user_id: str):
         if result:
             categories = result["categories_visited"]
             return {"status": "success", "history": categories}
-        return {"status": "faliure", "history": []}
+        return {"status": "failure", "history": []}
     except Exception as e:
         print(str(e), "failed to fetch product history")
         return False
@@ -858,7 +858,7 @@ async def fetch_search_history(user_id: str):
         if result:
             search_queries = result["search_queries"]
             return {"status": "success", "history": search_queries}
-        return {"status": "faliure", "history": []}
+        return {"status": "failure", "history": []}
     except Exception as e:
         print(str(e), "failed to fetch search history")
         raise HTTPException(
@@ -877,8 +877,8 @@ async def order_history_tags(user_id: str):
                 test = await get_products_from_tags(tag_list)
                 if len(test) >= 4:
                     return {"status": "success", "tags": tag_list}
-                return {"status": "faliure", "tags": [], "details": "No sufficient products"}
-            return {"status": "faliure", "tags": [], "details": "No History Found"}
+                return {"status": "failure", "tags": [], "details": "No sufficient products"}
+            return {"status": "failure", "tags": [], "details": "No History Found"}
     except Exception as e:
         print(str(e), "failed to fetch history tags")
     raise HTTPException(
@@ -893,7 +893,7 @@ async def fetch_products_with_tags(data: TagsToOrdersSchema):
         result = await get_products_from_tags(tags)
         if len(result) >= 4:
             return {"status": "success", "products": result}
-        return {"status": "faliure", "products": [], "details": "could not find sufficient products"}
+        return {"status": "failure", "products": [], "details": "could not find sufficient products"}
     except Exception as e:
         print(str(e), "failed to search products with tags")
         raise HTTPException(
@@ -918,7 +918,7 @@ async def delete_order(data: DeleteOrderSchema):
             }, upsert=True
         )
         return {"status": "success"}
-    return {"status": "faliure"}
+    return {"status": "failure"}
 
 
 @app.post("/fetch-order-history")
@@ -927,4 +927,4 @@ async def fetch_order_history(data: GetUserDataSchema):
     result = await order_history_collection.find_one({"user_id": user_id})
     if result:
         return {"status": "success", "orders": result["orders"]}
-    return {"status": "faliure", "details": "No order history found", "orders": []}
+    return {"status": "failure", "details": "No order history found", "orders": []}
