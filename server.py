@@ -148,7 +148,7 @@ class DeleteOrderSchema(BaseModel):
 conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv("EMAIL_USERNAME"),
     MAIL_PASSWORD=os.getenv("EMAIL_PASSWORD"),
-    MAIL_FROM=f"${os.getenv("EMAIL_USERNAME")}@gmail.com",
+    MAIL_FROM=f"{os.getenv('EMAIL_USERNAME')}@gmail.com",
     MAIL_PORT=587,
     MAIL_SERVER="smtp.gmail.com",
     MAIL_FROM_NAME='BuyIt',
