@@ -172,7 +172,9 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     # Replace with your frontend's URL
-    allow_origins=["http://localhost:3000", "http://192.168.1.162:3000"],
+    allow_origins=["https://buy-it-ofek-mymon.vercel.app",
+                   "https://buy-it-ofekmymons-projects.vercel.app",
+                   "https://buy-it-git-main-ofekmymons-projects.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
