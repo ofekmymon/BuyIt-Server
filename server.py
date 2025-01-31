@@ -294,6 +294,11 @@ async def add_to_search_history(query: str, user_id: str):
             status_code=400, detail="Failed to save search history")
 
 
+@app.get("/")
+def connection():
+    return {"message": "Connected Successfully"}
+
+
 @app.post("/signup")
 async def signup(user: UserSchema):
     user_data = user.dict()
