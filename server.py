@@ -808,6 +808,8 @@ async def fetch_orders(data: GetUserDataSchema):
     # get orders from user
     try:
         orders_query = await orders_collection.find_one({"user_id": data.id})
+        if orders_query == None:
+            return {"status": "success", "orders": []}
         orders_query["_id"] = str(orders_query["_id"])
         return {"status": "success", "orders": orders_query["orders"]}
     except Exception as e:
