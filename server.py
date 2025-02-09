@@ -172,9 +172,13 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     # Replace with your frontend's URL
-    allow_origins=["https://buy-it-ofek-mymon.vercel.app",
-                   "https://buy-it-ofekmymons-projects.vercel.app",
-                   "https://buy-it-git-main-ofekmymons-projects.vercel.app"],
+    allow_origins=[
+        # development
+        # "http://localhost:3000",
+        # "http://192.168.1.162:3000",
+        "https://buy-it-ofek-mymon.vercel.app",
+        "https://buy-it-ofekmymons-projects.vercel.app",
+        "https://buy-it-git-main-ofekmymons-projects.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -205,7 +209,7 @@ def compare_passwords(password: str, hashed: str):
 def generate_refresh_token(email: str, verified: bool, rememberMe: bool):
     # Calculate expiration time
     expire = datetime.now(timezone.utc) + timedelta(
-        days=15) if rememberMe else datetime.now(timezone.utc) + timedelta(hours=2)
+        days=15) if rememberMe else datetime.now(timezone.utc) + timedelta(hours=4)
     expire_timestamp = int(expire.timestamp())  # Convert to Unix timestamp
     # Payload
     to_encode = {"sub": email, "verified": verified, "exp": expire_timestamp}
@@ -217,7 +221,7 @@ def generate_refresh_token(email: str, verified: bool, rememberMe: bool):
 
 def generate_Access_token(email: str, verified: bool):
     # expiration time for the access token
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=0.1)
     # payload
     to_encode = {"sub": email, "verified": verified, "exp": expire}
     access_token = jwt.encode(to_encode, os.getenv(
@@ -326,7 +330,7 @@ async def signin(user: SignInSchema, response: Response):
         value=refresh_token,
         httponly=True,
         secure=True,
-        samesite="Strict",
+        samesite="None",
         path="/",
         max_age=cookie_age
     )
@@ -772,7 +776,7 @@ async def save_search_history(user_id: str, search_query: str):
 async def upload_order(order: OrderSchema):
     # this function will upload the order given to the db, find the item in the user cart and remove it
     order_dict = order.dict()
-    # take only the date of the time
+    # take only the dat e of the time
     order_dict["order_date"] = datetime.now(
         timezone.utc).date().strftime('%Y-%m-%d')
     try:
@@ -791,10 +795,18 @@ async def upload_order(order: OrderSchema):
             }},
             upsert=True
         )
-        # find user and remove item from cart
+        # find user and update item in cart
+        await users_collection.update_one(
+            {"_id": ObjectId(order_dict["user_id"]),
+             "cart.product_id": order_dict["product_id"]},
+            # decrease item quantity
+            {"$inc": {"cart.$.quantity": -order_dict["quantity"]}})
+
+        # Now, remove items where quantity is 0
         await users_collection.update_one(
             {"_id": ObjectId(order_dict["user_id"])},
-            {"$pull": {"cart": {"product_id": order_dict["product_id"]}}})
+            {"$pull": {"cart": {"quantity": {"$lte": 0}}}}
+        )
 
         return {"status": "success"}
 
