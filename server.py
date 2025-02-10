@@ -401,9 +401,16 @@ async def fetch_user(request: Request):
 @app.get("/signout")
 async def signout(response: Response):
     try:
-        response.delete_cookie(key="refresh_token", path="/")
+        response.delete_cookie(
+            key="refresh_token",
+            httponly=True,
+            secure=True,
+            samesite="None",
+            path="/",)
+        print("success")
         return True
     except:
+        print("faliure to delete cookie")
         return False
 
 
