@@ -144,6 +144,11 @@ class DeleteOrderSchema(BaseModel):
     order_date: str
 
 
+class QueryBySearchSchema(BaseModel):
+    search: str
+    products_number: int
+
+
 # for email sending
 conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv("EMAIL_USERNAME"),
@@ -677,7 +682,7 @@ async def delete_cart_item(req: MutateCartSchema):
 
 
 @app.get("/products-query")
-async def get_products(category: Optional[str] = None, search: Optional[str] = None, page: int = Query(1), per_page: int = 8, sort_by: Optional[str] = None):
+async def get_products(category: Optional[str] = None, search: Optional[str] = None, page: int = Query(1), per_page: int = 8, sort_by: Optional[str] = None, rnd: Optional[bool] = False):
     # this function is being used with infinite scrolling of react query.
     # create a search query based on category or tags or name
     query = {}
@@ -693,7 +698,8 @@ async def get_products(category: Optional[str] = None, search: Optional[str] = N
             if product_score[1] > 85:
                 matched_ids.append(product["_id"])
                 relevance_map[str(product["_id"])] = product_score[1]
-
+        if rnd:
+            matched_ids = random.sample(matched_ids, 4)
         query["_id"] = {"$in": matched_ids}
 
     if category:
