@@ -519,7 +519,7 @@ async def upload_product(
     images: List[UploadFile] = File(...),
 ):
     # backend check if user is validated
-    if not check_if_user_valid():
+    if not check_if_user_valid(seller):
         return {"ERROR": "User not validated"}
 
     tag_values = json.loads(tags)
