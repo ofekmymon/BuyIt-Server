@@ -17,6 +17,9 @@ import uuid
 from bson import ObjectId
 from io import BytesIO
 import motor.motor_asyncio
+from email_validator import validate_email, EmailNotValidError
+import re
+
 
 load_dotenv()
 # db
@@ -281,6 +284,17 @@ async def get_username(email: EmailStr):
     return None
 
 
+def validateUserDetails(user: UserSchema):
+    if (3 > len(user.name) > 12):
+        return False
+    try:
+        validate_email(user.email, check_deliverability=True)
+    except EmailNotValidError as e:
+        return False
+    if (4 > len(user.password) > 12 or re.search(r'\s', user.password)):
+        return False
+
+
 async def add_to_search_history(query: str, user_id: str):
     searched_at = datetime.now(timezone.utc)
     try:
@@ -314,6 +328,8 @@ def connection():
 async def signup(user: UserSchema):
     user_data = user.dict()
     user_data["password"] = hash_password(user_data["password"])
+    if (not validateUserDetails(user)):
+        return {"message": "Error: Signup details incorrect"}
     existing_user = await users_collection.find_one({'email': user_data["email"]})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
