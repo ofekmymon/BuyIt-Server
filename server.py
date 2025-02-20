@@ -17,7 +17,7 @@ import uuid
 from bson import ObjectId
 from io import BytesIO
 import motor.motor_asyncio
-from email_validator import validate_email, EmailNotValidError
+from email_validator import validate_email as email_verification, EmailNotValidError
 import re
 
 
@@ -288,7 +288,7 @@ def validate_user_details(user: UserSchema):
     if (3 > len(user.name) > 12):
         return False
     try:
-        validate_email(user.email, check_deliverability=True)
+        email_verification(user.email, check_deliverability=True)
     except EmailNotValidError as e:
         return False
     if (4 > len(user.password) > 12 or re.search(r'\s', user.password)):
