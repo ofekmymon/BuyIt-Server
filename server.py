@@ -284,7 +284,7 @@ async def get_username(email: EmailStr):
     return None
 
 
-def validateUserDetails(user: UserSchema):
+def validate_user_details(user: UserSchema):
     if (3 > len(user.name) > 12):
         return False
     try:
@@ -319,6 +319,13 @@ async def add_to_search_history(query: str, user_id: str):
             status_code=400, detail="Failed to save search history")
 
 
+async def check_if_user_valid(username: str):
+    user = await users_collection.find_one({'name': username})
+    if user:
+        return user.verified
+    return False
+
+
 @app.get("/")
 def connection():
     return {"message": "Connected Successfully"}
@@ -328,7 +335,7 @@ def connection():
 async def signup(user: UserSchema):
     user_data = user.dict()
     user_data["password"] = hash_password(user_data["password"])
-    if (not validateUserDetails(user)):
+    if (not validate_user_details(user)):
         return {"message": "Error: Signup details incorrect"}
     existing_user = await users_collection.find_one({'email': user_data["email"]})
     if existing_user:
@@ -511,6 +518,10 @@ async def upload_product(
     price: float = Form(...),
     images: List[UploadFile] = File(...),
 ):
+    # backend check if user is validated
+    if not check_if_user_valid():
+        return {"ERROR": "User not validated"}
+
     tag_values = json.loads(tags)
     try:
         product = ProductSchema(
