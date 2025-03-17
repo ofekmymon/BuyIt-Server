@@ -182,8 +182,8 @@ app.add_middleware(
     # Replace with your frontend's URL
     allow_origins=[
         # development
-        # "http://localhost:3000",
-        # "http://192.168.1.162:3000",
+        "http://localhost:3000",
+        "http://192.168.1.162:3000",
         "https://buy-it-ofek-mymon.vercel.app",
         "https://buy-it-ofekmymons-projects.vercel.app",
         "https://buy-it-git-main-ofekmymons-projects.vercel.app"],
@@ -257,7 +257,6 @@ async def get_products_from_tags(tags: List[str]):
             for tag_string in tags:
                 product_score = process.extractOne(
                     tag_string, [tag for tag in product["tags"]], processor=utils.default_process)
-                # print(product_score)
                 if product_score[2] <= 1 and product_score[1] >= 80:
                     matching_ids.append(product["_id"])
         if len(matching_ids) < 4:
@@ -278,7 +277,6 @@ async def get_products_from_tags(tags: List[str]):
 
 async def get_username(email: EmailStr):
     user = await users_collection.find_one({'email': email})
-    print(user)
     if user:
         return user["name"]
     return None
@@ -370,8 +368,6 @@ async def signin(user: SignInSchema, response: Response):
 @app.get("/validate-refresh-token")
 def verify_refresh_token(request: Request):
     refresh_token = request.cookies.get("refresh_token")
-    print("refresh token:")
-    print(refresh_token)
     try:
         if (jwt.decode(refresh_token, os.getenv("JWT_SECRET_REFRESH"), algorithms="HS256")):
             return {"status_code": 200, "status": "success"}
@@ -435,7 +431,6 @@ async def signout(response: Response):
             secure=True,
             samesite="None",
             path="/",)
-        print("success")
         return True
     except:
         print("faliure to delete cookie")
@@ -446,7 +441,6 @@ async def signout(response: Response):
 async def editDetails(editRequest: EditDetailsSchema):
     # edits user details
     try:
-        print(editRequest)
         query_filter = {"email": editRequest.userValidationEmail}
         update_operation = {
             '$set': {'name': editRequest.name, 'address': editRequest.address}}
@@ -495,7 +489,6 @@ async def validate_code(validation_data: VerificationCodeSchema):
     if code_data is None:
         return {"status": "failure", "message": "Code expired or invalid."}
     if code_data["code"] == validation_data.code:
-        print("not error")
         await validation_token_collection.delete_one({"email": validation_data.email})
         result = await users_collection.update_one({"email": validation_data.email}, {"$set": {"verified": True}})
         if result.modified_count:
@@ -536,19 +529,16 @@ async def upload_product(
         # holds the urls to be saved in the db with the product
         image_urls = []
         for image in product.images:
-            print(image)
             key = generate_key()
             try:
                 image_content = await image.read()
                 # Create a file-like object from the bytes
                 file_like_object = BytesIO(image_content)
-                print(file_like_object)
                 s3.upload_fileobj(file_like_object, BUCKET_NAME, key)
                 print(f"Successfully uploaded: {image.filename}")
                 image_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{key}"
                 image_urls.append(image_url)
             except Exception as e:
-                print(image)
                 return {"status": "failure", "message": f"Error uploading image: {e}"}
 
         product_data = product.dict()
@@ -577,7 +567,6 @@ async def query_products_by_category(category: str, number: int):
 @app.get("/fetch-product")
 async def fetch_product(id: str):
     # fetch product data using its id
-    print(id)
     try:
         product = await product_collection.find_one({"_id": ObjectId(id)})
         if not product:
@@ -592,7 +581,6 @@ async def fetch_product(id: str):
 @app.post("/upload-review")
 async def upload_review(review: ReviewSchema):
     # updates the db if theres a review with the same name to edit it. otherwise push it to the list of reviews
-    print(review)
     try:
         update_result = await product_collection.update_one(
             {"_id": ObjectId(review.product_id),
@@ -633,7 +621,6 @@ async def upload_review(review: ReviewSchema):
 async def save_local_cart(request: SaveLocalCart):
     # this function saves the cart that a user had before logged,2 in the db
     user = await users_collection.find_one({"email": request.email})
-    print(user)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     # fetch the cart from the user if exists or if not get an empty list
@@ -648,7 +635,6 @@ async def save_local_cart(request: SaveLocalCart):
     # returns to list
     updated_cart = [{"product_id": id, "quantity": quantity}
                     for id, quantity in cart.items()]
-    print(updated_cart)
     result = await users_collection.update_one({"email": request.email}, {"$set": {"cart": updated_cart}})
     if result.modified_count:
         return {"status": "success", "message": "Items added successfuly."}
@@ -714,7 +700,6 @@ async def get_products(category: Optional[str] = None, search: Optional[str] = N
     # create a search query based on category or tags or name
     query = {}
     relevance_map = {}
-    print(search)
     if search:
         # filter products by the search
         all_products = await product_collection.find({}, {"_id": 1, "name": 1, "tags": 1, "category": 1}).to_list(None)
@@ -897,7 +882,6 @@ async def save_product_history(category: str, user_id: str):
 @app.get("/fetch-product-history")
 async def fetch_product_history(user_id: str):
     # fetches product history
-    print(user_id)
     try:
         result = await user_visited_collection.find_one({"user_id": user_id})
         if result:
@@ -912,7 +896,6 @@ async def fetch_product_history(user_id: str):
 @app.get("/fetch-search-history")
 async def fetch_search_history(user_id: str):
     # fetches search history
-    print(user_id)
 
     try:
         result = await user_search_history_collection.find_one({"user_id": user_id})
