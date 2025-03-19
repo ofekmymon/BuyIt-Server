@@ -8,19 +8,19 @@ router = APIRouter(prefix="/user")
 
 @router.post("/signup")
 async def signup(user: UserSchema):
-    signup_user(user)
+    await signup_user(user)
     return {"message": "Signup successful"}
 
 
 @router.post("/signin")
 async def signin(user: SignInSchema, response: Response):
-    result = signin_user(user, response)
+    result = await signin_user(user, response)
     return result
 
 
 @router.get("/signout")
 async def signout(response: Response):
-    result = signout_user(response)
+    result = await signout_user(response)
     return result
 
 
@@ -32,7 +32,7 @@ async def fetch_user(request: Request):
     access_token = json_body.get("access_token")
     if (not access_token):
         return {"status": "failure", "status_code": 403, "user": None}
-    user = get_user(access_token)
+    user = await get_user(access_token)
     if (user):
         return {"status": "sucess", "status_code": 200, "user": user}
     print("failed to retrieve user with access token, refreshing..")
@@ -42,7 +42,7 @@ async def fetch_user(request: Request):
 @router.post("/edit-user-details")
 async def editDetails(editRequest: EditDetailsSchema):
     # edits user details
-    result = await edit_user()
+    result = await edit_user(editRequest)
     if (result):
         return {'status': 'success'}
     return {'status': 'failure'}

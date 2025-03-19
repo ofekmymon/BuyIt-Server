@@ -10,7 +10,7 @@ from microservices.users_microservice import compare_passwords, find_user_by_ema
 async def signup_user(user):
     user_data = user.dict()
     user_data["password"] = hash_password(user_data["password"])
-    if (not validate_user_details(user)):
+    if not validate_user_details(user):
         raise HTTPException(status_code=400, detail="Invalid Details")
     existing_user = await find_user_by_email()
     if existing_user:
@@ -21,7 +21,7 @@ async def signup_user(user):
 async def signin_user(user, response):
     # if fails find_user_by_email returns an httpexception to the user
     found_user = await find_user_by_email(user.email)
-    if (found_user == None):
+    if found_user == None:
         raise HTTPException(status_code=404, detail="User Not Found")
     await compare_passwords(user.password, found_user["password"])
     refresh_token = generate_refresh_token(
