@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 import jwt
 from mongomanager import users_collection
-from microservices.auth_microservice import generate_Access_token, generate_refresh_token, validate_user_details
+from microservices.auth_microservice import generate_access_token, generate_refresh_token, validate_user_details
 from microservices.users_microservice import compare_passwords, find_user_by_email, hash_password, save_user, createCookie
 
 
@@ -23,27 +23,26 @@ async def signin_user(user, response):
     found_user = await find_user_by_email(user.email)
     if found_user == None:
         raise HTTPException(status_code=404, detail="User Not Found")
-    await compare_passwords(user.password, found_user["password"])
+    compare_passwords(user.password, found_user["password"])
     refresh_token = generate_refresh_token(
         found_user["email"], found_user["verified"], user.remember)
     createCookie(user.remember, response, refresh_token)
-    access_token = generate_Access_token(
+    access_token = generate_access_token(
         found_user["email"], found_user["verified"])
     return {"message": f"Logged in as {found_user['name']}", "access_token": access_token, "user": found_user}
 
 
-async def signout_user(response):
-    try:
+async def signout_user(request, response):
+    if "refresh_token" in request.cookies:
         response.delete_cookie(
             key="refresh_token",
             httponly=True,
             secure=True,
             samesite="None",
-            path="/",)
+            path="/",
+        )
         return True
-    except:
-        print("faliure to delete cookie")
-        return False
+    return False
 
 
 async def get_user(token):
@@ -77,5 +76,5 @@ async def edit_user(new_data):
 async def check_if_user_valid(username: str):
     user = await users_collection.find_one({'name': username})
     if user:
-        return user.verified
+        return user.get("verified", False)
     return False

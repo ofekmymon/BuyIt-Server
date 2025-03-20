@@ -1,7 +1,5 @@
-import os
 import bcrypt
 from fastapi import HTTPException
-import jwt
 from mongomanager import users_collection
 
 

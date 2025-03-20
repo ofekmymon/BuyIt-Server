@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
 import os
 from fastapi import HTTPException
-from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
+from fastapi_mail import FastMail, MessageSchema
 import jwt
-from microservices.auth_microservice import generate_Access_token, generate_verification_code
+from microservices.auth_microservice import generate_access_token, generate_verification_code
 from mongomanager import validation_token_collection, users_collection
-from server import conf
+from schemas.auth_schemas import conf
 
 
 def validate_refresh_token(request):
@@ -27,15 +27,20 @@ def validate_access_token(token):
         return 400
 
 
-def generate_access_token(request):
+def create_access_token(request):
     try:
-        refresh_payload = jwt.decode(request.cookies.get(
-            "refresh_token"), os.getenv("JWT_SECRET_REFRESH"), algorithms="HS256")
+        refresh_token = request.cookies.get("refresh_token")
+        if not refresh_token:
+            print("No refresh token found.")
+            return None
+        refresh_payload = jwt.decode(refresh_token.encode(), os.getenv(
+            "JWT_SECRET_REFRESH"), algorithms="HS256")
         email = refresh_payload["sub"]
         verified = refresh_payload["verified"]
-        new_token = generate_Access_token(email, verified)
+        new_token = generate_access_token(email, verified)
         return new_token
-    except:
+    except Exception as e:
+        print(f"Error generating access token: ${e}")
         return None
 
 

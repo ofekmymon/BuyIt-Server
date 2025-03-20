@@ -54,7 +54,7 @@ async def update_cart(order):
         return False
 
 
-async def fetch_order(data):
+async def fetch_orders(data):
     # get orders from user
     try:
         orders_query = await orders_collection.find_one({"user_id": data.id})

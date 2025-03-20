@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from schemas.orders_schemas import DeleteOrderSchema, OrderSchema
 from schemas.user_schemas import GetUserDataSchema
-from services.orders_service import upload_orders, update_cart, fetch_order, delete_orders
+from services.orders_service import upload_orders, update_cart, fetch_orders, delete_orders
 
 router = APIRouter(prefix="/orders")
 
@@ -25,9 +25,9 @@ async def upload_order(order: OrderSchema):
 
 
 @router.post("/fetch-orders")
-async def fetch_orders(data: GetUserDataSchema):
+async def fetch_order(data: GetUserDataSchema):
     # get orders from user
-    orders = await fetch_order(data)
+    orders = await fetch_orders(data)
     if orders:
         return {"status": "success", "orders": orders["orders"]}
     print("failed to fetch orders")
@@ -36,7 +36,7 @@ async def fetch_orders(data: GetUserDataSchema):
 
 @router.post("/delete-order")
 async def delete_order(data: DeleteOrderSchema):
-    result = delete_orders(data)
+    result = await delete_orders(data)
     if result:
         return {"status": "success"}
     return {"status": "failure"}

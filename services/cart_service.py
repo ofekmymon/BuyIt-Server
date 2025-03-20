@@ -56,7 +56,7 @@ async def add_to_cart(req):
         return False
 
 
-async def delete_cart_item(req):
+async def delete_item_in_cart(req):
     try:
         user = await users_collection.find_one({"email": req.email})
         if not user:

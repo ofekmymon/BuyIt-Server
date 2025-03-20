@@ -1,10 +1,11 @@
 from io import BytesIO
 import random
+from bson import ObjectId
 from rapidfuzz import process, utils
 from fastapi import HTTPException
 from microservices.product_microservice import generate_key, get_products_from_tags
 from mongomanager import product_collection
-from server import BUCKET_NAME, s3
+from schemas.product_schemas import BUCKET_NAME, s3
 
 
 async def upload_product_db(product):
@@ -15,6 +16,18 @@ async def upload_product_db(product):
         return True
     except Exception as e:
         return False
+
+
+async def get_product(id: str):
+    try:
+        product = await product_collection.find_one({"_id": ObjectId(id)})
+        if not product:
+            raise HTTPException(
+                status_code=404, detail="No product found for the given id")
+        product["_id"] = str(product["_id"])
+        return product
+    except:
+        return None
 
 
 async def images_to_links(images):
@@ -40,7 +53,6 @@ async def query_product_by_category(category, number):
     if not result:
         raise HTTPException(
             status_code=404, detail="No products found for the given category")
-
     sample_size = min(len(result), number)
     products_to_send = random.sample(result, sample_size)
     for product in products_to_send:
@@ -129,7 +141,7 @@ async def product_pipeline(pipeline, per_page):
     # change id to str so python could handle it
     for product in products:
         product["_id"] = str(product["_id"])
-    return product
+    return products
 
 
 async def get_products_using_tags(data):

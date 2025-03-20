@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
-from cart_schemas import CartItem
+from schemas.cart_schemas import CartItem
 
 
 class UserSchema(BaseModel):

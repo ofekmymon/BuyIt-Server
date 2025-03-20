@@ -1,5 +1,5 @@
 import json
-from fastapi import APIRouter, HTTPException, Response, Request
+from fastapi import APIRouter, Response, Request
 from schemas.user_schemas import EditDetailsSchema, SignInSchema, UserSchema
 from services.users_service import signup_user, signin_user, signout_user, get_user, edit_user
 
@@ -19,8 +19,8 @@ async def signin(user: SignInSchema, response: Response):
 
 
 @router.get("/signout")
-async def signout(response: Response):
-    result = await signout_user(response)
+async def signout(request: Request, response: Response):
+    result = await signout_user(request, response)
     return result
 
 

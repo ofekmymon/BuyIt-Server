@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, timezone
 import os
 import random
 import re
-from fastapi import HTTPException
 import jwt
 from email_validator import validate_email as email_verification, EmailNotValidError
 
@@ -32,7 +31,7 @@ def generate_refresh_token(email: str, verified: bool, rememberMe: bool):
     return refresh_token
 
 
-def generate_Access_token(email: str, verified: bool):
+def generate_access_token(email: str, verified: bool):
     # expiration time for the access token
     expire = datetime.now(timezone.utc) + timedelta(minutes=0.1)
     # payload

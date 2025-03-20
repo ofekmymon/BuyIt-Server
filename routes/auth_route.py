@@ -7,7 +7,7 @@ router = APIRouter(prefix="/auth")
 
 @router.get("/generate-access-token")
 def generate_access_token(request: Request):
-    new_token = generate_Access_token(request)
+    new_token = create_access_token(request)
     if new_token:
         return {"status_code": 200, "status": "success", "token": new_token}
     else:

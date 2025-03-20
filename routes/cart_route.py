@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from schemas.cart_schemas import MutateCartSchema, SaveLocalCart
 from schemas.user_schemas import GetUserDataSchema
-from services.cart_service import update_cart_from_local, get_user_cart, add_to_cart, delete_cart_item
+from services.cart_service import update_cart_from_local, get_user_cart, add_to_cart, delete_item_in_cart
 
 router = APIRouter(prefix="/cart")
 
@@ -38,7 +38,7 @@ async def add_cart_item(req: MutateCartSchema):
 @router.post("/delete-cart-item")
 async def delete_cart_item(req: MutateCartSchema):
     # delete item from cart
-    result = await delete_cart_item(req)
+    result = await delete_item_in_cart(req)
     if result:
         return {"status": "success"}
     print("Error deleting cart item")

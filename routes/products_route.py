@@ -31,7 +31,7 @@ async def upload_product(
         images=images,
     )
     # holds the urls to be saved in the db with the product
-    if (await check_if_user_valid(seller)):
+    if (not await check_if_user_valid(seller)):
         return {"ERROR": "User not validated"}
     image_urls = await images_to_links(product.images)
     if not image_urls:
@@ -53,7 +53,7 @@ async def query_products_by_category(category: str, number: int):
 @router.get("/fetch-product")
 async def fetch_product(id: str):
     # fetch product data using its id
-    product = await fetch_product(id)
+    product = await get_product(id)
     if product:
         return {"status": "success", "product": product}
     return {"status": "failure", "error": "Unable to query product"}
