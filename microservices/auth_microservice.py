@@ -8,7 +8,7 @@ from email_validator import validate_email as email_verification, EmailNotValidE
 
 def validate_user_details(user):
     # validates details before saving them
-    if (3 > len(user.name) > 12):
+    if (1 > len(user.name) > 12):
         return False
     try:
         email_verification(user.email, check_deliverability=True)
