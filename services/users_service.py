@@ -12,7 +12,7 @@ async def signup_user(user):
     user_data["password"] = hash_password(user_data["password"])
     if not validate_user_details(user):
         raise HTTPException(status_code=400, detail="Invalid Details")
-    existing_user = await find_user_by_email()
+    existing_user = await find_user_by_email(user_data["email"])
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     await save_user()
