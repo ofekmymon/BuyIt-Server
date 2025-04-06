@@ -20,9 +20,7 @@ async def save_local_cart(request: SaveLocalCart):
 async def get_cart(user_data: GetUserDataSchema):
     # get cart from user db
     cart = await get_user_cart(user_data)
-    if cart:
-        return {"status": "success", "cart": cart}
-    raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "success", "cart": cart}
 
 
 @router.post("/add-cart-item")
