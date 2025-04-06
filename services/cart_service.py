@@ -28,7 +28,7 @@ async def update_cart_from_local(request):
 async def get_user_cart(user_data):
     user = await users_collection.find_one({"_id": ObjectId(user_data.id)})
     if user:
-        return user["cart"]
+        return user.get("cart", [])
     raise HTTPException(status_code=404, detail="User not found")
 
 
