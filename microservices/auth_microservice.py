@@ -16,6 +16,7 @@ def validate_user_details(user):
         return False
     if (4 > len(user.password) > 12 or re.search(r'\s', user.password)):
         return False
+    return True
 
 
 def generate_refresh_token(email: str, verified: bool, rememberMe: bool):
