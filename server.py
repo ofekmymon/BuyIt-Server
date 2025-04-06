@@ -31,7 +31,7 @@ app.include_router(review_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Specific frontend URL
+    allow_origins=["https://buy-it-ofek-mymon.vercel.app"],  # Specific frontend URL
     allow_credentials=True,  # Allow cookies & auth headers
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
