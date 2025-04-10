@@ -63,9 +63,11 @@ async def query_product_by_category(category, number):
 async def get_search_query(search, rnd, category):
     query = {}
     relevance_map = {}
+    if category:
+        query["category"] = category
     if search:
         # filter products by the search
-        all_products = await product_collection.find({}, {"_id": 1, "name": 1, "tags": 1, "category": 1}).to_list(None)
+        all_products = await product_collection.find(query, {"_id": 1, "name": 1, "tags": 1, "category": 1}).to_list(None)
         matched_ids = []
         for product in all_products:
             product_score = process.extractOne(search,
